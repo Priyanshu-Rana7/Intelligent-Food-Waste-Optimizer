@@ -9,7 +9,7 @@
 - **Predictive Analytics**: Forecasts market demand 7 days in advance.
 - **Environmental Intelligence**: Predicts spoilage risk using live temperature, humidity, and shelf-life data.
 - **Logistics Integration**: Automatically calculates optimized donation routes to the nearest NGOs using the Haversine formula.
-- **One-Click Execution**: Integrated startup script for seamless backend and frontend.
+- **One-Click Execution**: Integrated startup script for seamless backend and frontend launch.
 
 ---
 
