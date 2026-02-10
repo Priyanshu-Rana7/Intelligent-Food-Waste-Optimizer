@@ -1,0 +1,52 @@
+[
+    {
+        "id": "NGO001",
+        "name": "City Food Bank",
+        "address": "123 Hunger Relief St, Downtown",
+        "lat": 12.9716,
+        "lon": 77.5946,
+        "capacity_kg": 500,
+        "accepted_categories": [
+            "Grains",
+            "Vegetables",
+            "Dairy"
+        ]
+    },
+    {
+        "id": "NGO002",
+        "name": "Kind Hearts Shelter",
+        "address": "45 Hope Garden Rd, East Side",
+        "lat": 12.9345,
+        "lon": 77.6101,
+        "capacity_kg": 200,
+        "accepted_categories": [
+            "Vegetables",
+            "Fruits"
+        ]
+    },
+    {
+        "id": "NGO003",
+        "name": "Zero Waste Kitchen",
+        "address": "88 Sustainability Ave, Green Park",
+        "lat": 12.9902,
+        "lon": 77.5701,
+        "capacity_kg": 350,
+        "accepted_categories": [
+            "Prepared Food",
+            "Dairy",
+            "Vegetables"
+        ]
+    },
+    {
+        "id": "NGO004",
+        "name": "Community Support NGO",
+        "address": "12 Unity Lane, West End",
+        "lat": 12.9500,
+        "lon": 77.5400,
+        "capacity_kg": 150,
+        "accepted_categories": [
+            "Grains",
+            "Non-perishables"
+        ]
+    }
+]

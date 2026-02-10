@@ -1,0 +1,1 @@
+Just double-click the "start.bat" file and the project will run.

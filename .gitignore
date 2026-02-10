@@ -1,0 +1,34 @@
+# Node.js / React
+frontend/node_modules/
+frontend/build/
+frontend/.env
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python
+**/__pycache__/
+**/*.py[cod]
+*$py.class
+**/.venv/
+venv/
+ENV/
+backend/.env
+
+# ML Models (Large binaries - optional to track)
+# Un-comment the line below if you don't want to upload the trained models
+# backend/models/*.pkl
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local Logs
+*.log
