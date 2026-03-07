@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Navigation, Package, AlertCircle, ChevronRight, CheckCircle } from 'lucide-react';
+import { MapPin, Navigation, Package, AlertCircle, ChevronRight, CheckCircle, Download } from 'lucide-react';
 import axios from 'axios';
+import { exportToCSV } from '../utils/exportCSV';
+import { getProductName } from '../utils/productNames';
 
 const RouteOptimization = () => {
     const [routes, setRoutes] = useState([]);
@@ -30,9 +32,33 @@ const RouteOptimization = () => {
 
     return (
         <div className="route-page">
-            <header className="page-header">
-                <h2>Route Optimization</h2>
-                <p>Prioritizing food donations based on spoilage risk and proximity.</p>
+            <header className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                    <h2>Route Optimization</h2>
+                    <p>Prioritizing food donations based on spoilage risk and proximity.</p>
+                </div>
+                {routes.length > 0 && (
+                    <button
+                        onClick={() => exportToCSV(
+                            routes.flatMap(item =>
+                                item.recommended_ngos.map(ngo => ({
+                                    'Product ID': item.product_id,
+                                    'Product Name': getProductName(item.product_id),
+                                    'Risk Score (%)': item.risk_score,
+                                    'Quantity (units)': item.quantity,
+                                    'NGO Name': ngo.ngo_name,
+                                    'Distance (km)': ngo.distance_km,
+                                    'Match Score (%)': ngo.suitability_score,
+                                    'Address': ngo.address
+                                }))
+                            ),
+                            'route_optimization_report.csv'
+                        )}
+                        style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#2ecc71', color: '#fff', border: 'none', padding: '0.6rem 1.4rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem', whiteSpace: 'nowrap' }}
+                    >
+                        <Download size={16} /> Export Report
+                    </button>
+                )}
             </header>
 
             <div className="routes-container">
@@ -49,7 +75,10 @@ const RouteOptimization = () => {
                                 <div className="item-info">
                                     <div className="item-header">
                                         <Package size={24} className="logo-icon" />
-                                        <h3>{item.product_name} ({item.product_id})</h3>
+                                        <div>
+                                            <h3 style={{ margin: 0 }}>{getProductName(item.product_id)}</h3>
+                                            <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{item.product_id}</span>
+                                        </div>
                                     </div>
                                     <div className="risk-badge" style={{
                                         backgroundColor: item.risk_score > 70 ? '#fee2e2' : '#fef3c7',

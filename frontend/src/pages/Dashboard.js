@@ -80,12 +80,16 @@ const Dashboard = () => {
                     </div>
                     <div className="alerts-list">
                         <div className="alert-item" style={{ padding: '0.75rem 0', borderBottom: '1px solid #f1f5f9' }}>
-                            <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>P001 - Fresh Tomatoes</div>
-                            <div style={{ color: '#ef4444', fontSize: '0.75rem' }}>Risk: 12% • Shelf life: 2 days remaining</div>
+                            <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>P002 - Spinach Bunch</div>
+                            <div style={{ color: '#ef4444', fontSize: '0.75rem' }}>Risk: 50% • Shelf life: 0.5 days remaining</div>
                         </div>
                         <div className="alert-item" style={{ padding: '0.75rem 0', borderBottom: '1px solid #f1f5f9' }}>
-                            <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>P005 - Spinach Bundle</div>
-                            <div style={{ color: '#f59e0b', fontSize: '0.75rem' }}>Risk: 8% • Temp: 28°C</div>
+                            <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>P007 - Whole Wheat Bread</div>
+                            <div style={{ color: '#ef4444', fontSize: '0.75rem' }}>Risk: 48% • Shelf life: 1 day remaining</div>
+                        </div>
+                        <div className="alert-item" style={{ padding: '0.75rem 0', borderBottom: '1px solid #f1f5f9' }}>
+                            <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>P001 - Fresh Tomatoes</div>
+                            <div style={{ color: '#f59e0b', fontSize: '0.75rem' }}>Risk: 22% • Temp: 30°C</div>
                         </div>
                     </div>
                 </div>

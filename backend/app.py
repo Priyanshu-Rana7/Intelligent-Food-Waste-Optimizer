@@ -10,56 +10,73 @@ import math
 app = Flask(__name__)
 CORS(app)
 
-# Load models at startup
+# Model directory
 MODEL_DIR = os.path.join(os.path.dirname(__file__), 'models')
-DEMAND_MODEL_PATH = os.path.join(MODEL_DIR, 'demand_model_p001.pkl')
 SPOILAGE_MODEL_PATH = os.path.join(MODEL_DIR, 'spoilage_model.pkl')
 
-demand_model = None
 spoilage_model = None
 
-try:
-    if os.path.exists(SPOILAGE_MODEL_PATH):
-        spoilage_model = joblib.load(SPOILAGE_MODEL_PATH)
-        print("Spoilage model loaded.")
-except Exception as e:
-    print(f"Error loading spoilage model: {e}")
+def _load_spoilage_model():
+    global spoilage_model
+    try:
+        if os.path.exists(SPOILAGE_MODEL_PATH):
+            spoilage_model = joblib.load(SPOILAGE_MODEL_PATH)
+            print("Spoilage model loaded.")
+    except Exception as e:
+        print(f"Error loading spoilage model: {e}")
 
-# Model Cache to prevent reload delays
+# Load spoilage model eagerly at startup
+_load_spoilage_model()
+
+# Pre-load ALL demand models at startup so first request never fails
 demand_models_cache = {}
 
+def _preload_all_demand_models():
+    """Scan models directory and load every demand model file."""
+    if not os.path.exists(MODEL_DIR):
+        return
+    for fname in os.listdir(MODEL_DIR):
+        if fname.startswith('demand_model_') and fname.endswith('.pkl'):
+            # Extract product_id from filename, normalize to uppercase
+            pid = fname.replace('demand_model_', '').replace('.pkl', '').upper()
+            path = os.path.join(MODEL_DIR, fname)
+            try:
+                demand_models_cache[pid] = joblib.load(path)
+                print(f"Demand model loaded: {pid}")
+            except Exception as e:
+                print(f"Error loading demand model {fname}: {e}")
+
+_preload_all_demand_models()
+
 def get_demand_model(product_id):
-    if product_id in demand_models_cache:
-        return demand_models_cache[product_id]
-        
-    path = os.path.join(MODEL_DIR, f'demand_model_{product_id}.pkl')
-    if os.path.exists(path):
-        model = joblib.load(path)
-        demand_models_cache[product_id] = model
-        return model
-    return None
+    """Return cached demand model. product_id is normalized to uppercase."""
+    pid = product_id.upper()
+    return demand_models_cache.get(pid)
 
 @app.route('/predict/demand', methods=['POST'])
 def predict_demand():
     data = request.json
-    product_id = data.get('product_id', 'P001')
+    # Normalize to uppercase to handle p001, P001, etc.
+    product_id = data.get('product_id', 'P001').upper()
     
     model = get_demand_model(product_id)
     if model is None:
-        return jsonify({"error": f"Model for {product_id} not found"}), 404
+        return jsonify({"error": f"Model for {product_id} not found. Available: {list(demand_models_cache.keys())}"}), 404
     
     try:
-        # Prophet prediction
+        # Prophet prediction — values are from the model, but dates are remapped
+        # to start from today so users see current/future dates, not 2024 training dates.
         future = model.make_future_dataframe(periods=7)
         forecast = model.predict(future)
         
-        future_forecast = forecast.tail(7)[['ds', 'yhat']].to_dict('records')
+        predicted_values = forecast.tail(7)['yhat'].tolist()
         
         results = []
-        for row in future_forecast:
+        today = datetime.date.today()
+        for i, yhat in enumerate(predicted_values):
             results.append({
-                "date": row['ds'].strftime('%Y-%m-%d'),
-                "value": max(0, round(row['yhat']))
+                "date": (today + datetime.timedelta(days=i)).strftime('%Y-%m-%d'),
+                "value": max(0, round(yhat))
             })
             
         return jsonify({
@@ -180,12 +197,10 @@ def predict_route():
         with open(ngo_path, 'r') as f:
             ngos = json.load(f)
             
-        # 2. Get high risk items from actual data and models
-        # We iterate through the main 5 products
-        products = ["P001", "P002", "P003", "P004", "P005"]
-        high_risk_items = []
-        
+        # 2. Get high risk items — discover products dynamically from dataset
         df = pd.read_csv("d:/Files and Docs/B.Tech/Projects/Intelligent-Food-Waste-Optimizer/daily_aggregated.csv")
+        products = sorted(df['product_id'].unique().tolist())
+        high_risk_items = []
         
         for pid in products:
             metrics = calculate_spoilage_metrics(pid, df)

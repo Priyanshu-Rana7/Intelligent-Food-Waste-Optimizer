@@ -19,6 +19,9 @@ backend/.env
 # Un-comment the line below if you don't want to upload the trained models
 # backend/models/*.pkl
 
+# One-off utility/data scripts (not part of core project)
+ml/add_products.py
+
 # OS Files
 .DS_Store
 Thumbs.db
@@ -32,3 +35,6 @@ desktop.ini
 
 # Local Logs
 *.log
+
+# CSV backups (if any auto-generated)
+*.csv.bak
