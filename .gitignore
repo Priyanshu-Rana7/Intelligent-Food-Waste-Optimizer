@@ -21,6 +21,7 @@ backend/.env
 
 # One-off utility/data scripts (not part of core project)
 ml/add_products.py
+extend_dataset.py
 
 # OS Files
 .DS_Store

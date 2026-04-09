@@ -4,7 +4,6 @@ import joblib
 import os
 
 def train_demand_model():
-    # Load dataset
     data_path = "d:/Files and Docs/B.Tech/Projects/Intelligent-Food-Waste-Optimizer/daily_aggregated.csv"
     df = pd.read_csv(data_path)
     
@@ -20,7 +19,6 @@ def train_demand_model():
         
         prophet_df = df_product[['date', 'units_sold']].rename(columns={'date': 'ds', 'units_sold': 'y'})
         
-        # Model
         model = Prophet()
         model.fit(prophet_df)
         

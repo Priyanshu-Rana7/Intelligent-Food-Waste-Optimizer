@@ -8,7 +8,9 @@ import { getProductName, resolveProductInput, ALL_PRODUCTS } from '../utils/prod
 const SpoilagePrediction = () => {
     const [query, setQuery] = useState('');
     const [suggestions, setSuggestions] = useState([]);
-    const [targetDate, setTargetDate] = useState(new Date().toISOString().split('T')[0]);
+    const today = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
+    const [targetDate, setTargetDate] = useState(today);
+    const [loadedProductId, setLoadedProductId] = useState(null);
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -29,16 +31,17 @@ const SpoilagePrediction = () => {
         submitSearch(product.id);
     };
 
-    const submitSearch = async (productId) => {
+    const submitSearch = async (productId, date = targetDate) => {
         setLoading(true);
         setError(null);
         setData(null);
         try {
             const response = await axios.post('http://localhost:5000/predict/spoilage', {
                 product_id: productId,
-                date: targetDate
+                date: date
             });
             setData(response.data);
+            setLoadedProductId(productId); // remember which product was loaded
         } catch (err) {
             setError(err.response?.data?.error || 'Product not found. Try P001, P002, etc.');
         } finally {
@@ -46,8 +49,27 @@ const SpoilagePrediction = () => {
         }
     };
 
+    // Auto-refresh when date changes if a product is already loaded
+    const handleDateChange = (newDate) => {
+        setTargetDate(newDate);
+        if (newDate < today) {
+            setError('Predictions for past dates are not available. Please select today or a future date.');
+            setData(null);
+            return;
+        }
+        setError(null);
+        if (loadedProductId) {
+            submitSearch(loadedProductId, newDate);
+        }
+    };
+
     const handlePredict = (e) => {
         e.preventDefault();
+        if (targetDate < today) {
+            setError('Predictions for past dates are not available. Please select today or a future date.');
+            setData(null);
+            return;
+        }
         const resolved = resolveProductInput(query);
         if (!resolved) {
             setError(`No product found matching "${query}". Try: Milk, Bread, P007, etc.`);
@@ -91,8 +113,10 @@ const SpoilagePrediction = () => {
                         type="date"
                         className="form-input"
                         value={targetDate}
-                        onChange={(e) => setTargetDate(e.target.value)}
+                        min={today}
+                        onChange={(e) => handleDateChange(e.target.value)}
                         style={{ flex: 1, minWidth: '200px' }}
+                        title="Select today or a future date"
                     />
                     <button type="submit" className="btn-primary" style={{ width: 'auto', padding: '0 2rem', background: '#3b82f6' }} disabled={loading}>
                         {loading ? <Loader2 className="animate-spin" size={20} /> : 'Check Spoilage'}
@@ -113,7 +137,17 @@ const SpoilagePrediction = () => {
                 </div>
             )}
 
-            {data && (
+            {data && (() => {
+                // Shift the graph curve so first point (today) starts at avg_risk.
+                // This makes the graph visually consistent with the displayed prediction.
+                // CSV export and avg_risk card remain unchanged.
+                const offset = data.avg_risk - data.forecast[0].risk_score;
+                const chartForecast = data.forecast.map(point => ({
+                    ...point,
+                    risk_score: Math.min(100, Math.round((point.risk_score + offset) * 10) / 10)
+                }));
+
+                return (
                 <div className="content-grid" style={{ gridTemplateColumns: 'minmax(250px, 300px) 1fr', alignItems: 'start' }}>
                     <div className="stat-card" style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center' }}>
                         <div className="stat-label" style={{ fontSize: '1rem', marginBottom: '0.5rem', fontWeight: 600, color: '#3b82f6' }}>
@@ -146,7 +180,7 @@ const SpoilagePrediction = () => {
                         </div>
                         <div style={{ width: '100%', height: 350 }}>
                             <ResponsiveContainer>
-                                <AreaChart data={data.forecast}>
+                                <AreaChart data={chartForecast}>
                                     <defs>
                                         <linearGradient id="colorRisk" x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="5%" stopColor="#ef4444" stopOpacity={0.1} />
@@ -178,7 +212,8 @@ const SpoilagePrediction = () => {
                         </div>
                     </div>
                 </div>
-            )}
+                );
+            })()}
         </div>
     );
 };
