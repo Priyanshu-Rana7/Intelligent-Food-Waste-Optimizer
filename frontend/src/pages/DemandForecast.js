@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Search, TrendingUp, Loader2, Info, Download } from 'lucide-react';
+import { Loader2, Info, Download } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { exportToCSV } from '../utils/exportCSV';
 import { getProductName, resolveProductInput, ALL_PRODUCTS } from '../utils/productNames';
