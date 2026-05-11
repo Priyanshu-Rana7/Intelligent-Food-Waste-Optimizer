@@ -36,7 +36,7 @@ const SpoilagePrediction = () => {
         setError(null);
         setData(null);
         try {
-            const response = await axios.post('http://localhost:5000/predict/spoilage', {
+            const response = await axios.post(`${process.env.REACT_APP_API_URL}/predict/spoilage`, {
                 product_id: productId,
                 date: date
             });
@@ -137,17 +137,7 @@ const SpoilagePrediction = () => {
                 </div>
             )}
 
-            {data && (() => {
-                // Shift the graph curve so first point (today) starts at avg_risk.
-                // This makes the graph visually consistent with the displayed prediction.
-                // CSV export and avg_risk card remain unchanged.
-                const offset = data.avg_risk - data.forecast[0].risk_score;
-                const chartForecast = data.forecast.map(point => ({
-                    ...point,
-                    risk_score: Math.min(100, Math.round((point.risk_score + offset) * 10) / 10)
-                }));
-
-                return (
+            {data && (
                 <div className="content-grid" style={{ gridTemplateColumns: 'minmax(250px, 300px) 1fr', alignItems: 'start' }}>
                     <div className="stat-card" style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center' }}>
                         <div className="stat-label" style={{ fontSize: '1rem', marginBottom: '0.5rem', fontWeight: 600, color: '#3b82f6' }}>
@@ -158,10 +148,10 @@ const SpoilagePrediction = () => {
                             <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '6px' }}>({data.product_id})</span>
                         </div>
                         <div className="stat-value" style={{ fontSize: '3.5rem', color: '#1e293b' }}>
-                            {data.avg_risk}%
+                            {data.forecast[0].risk_score}%
                         </div>
                         <div className="stat-label" style={{ marginTop: '1rem' }}>
-                            Avg Risk over next 7 days
+                            Spoilage Risk on Selected Date
                         </div>
                         <button
                             onClick={() => exportToCSV(
@@ -180,7 +170,7 @@ const SpoilagePrediction = () => {
                         </div>
                         <div style={{ width: '100%', height: 350 }}>
                             <ResponsiveContainer>
-                                <AreaChart data={chartForecast}>
+                                <AreaChart data={data.forecast}>
                                     <defs>
                                         <linearGradient id="colorRisk" x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="5%" stopColor="#ef4444" stopOpacity={0.1} />
@@ -212,8 +202,7 @@ const SpoilagePrediction = () => {
                         </div>
                     </div>
                 </div>
-                );
-            })()}
+            )}
         </div>
     );
 };

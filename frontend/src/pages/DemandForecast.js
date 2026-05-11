@@ -35,7 +35,7 @@ const DemandForecast = () => {
         setData(null);
 
         try {
-            const response = await axios.post('http://localhost:5000/predict/demand', { product_id: productId });
+            const response = await axios.post(`${process.env.REACT_APP_API_URL}/predict/demand`, { product_id: productId });
             setData(response.data);
         } catch (err) {
             setError(err.response?.data?.error || 'Product not found. Try P001, P002, etc.');

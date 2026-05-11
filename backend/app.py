@@ -21,7 +21,7 @@ from routes.route_optimizer import route_bp
 
 # ── App Setup ──────────────────────────────────────────────────────────────────
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins="*")
 
 # ── Load Models at Startup ─────────────────────────────────────────────────────
 load_spoilage_model()

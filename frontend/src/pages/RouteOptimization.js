@@ -35,7 +35,7 @@ const RouteOptimization = () => {
 
     const fetchRoutes = async () => {
         try {
-            const response = await axios.get('http://127.0.0.1:5000/predict/route');
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/predict/route`);
             const routes = response.data.optimized_routes;
             setRoutes(routes);
             // Initialise remaining qty per product

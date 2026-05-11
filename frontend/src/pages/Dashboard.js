@@ -24,7 +24,7 @@ const Dashboard = () => {
     const [highRiskItems, setHighRiskItems] = useState([]);
 
     useEffect(() => {
-        axios.get('http://localhost:5000/predict/route')
+        axios.get(`${process.env.REACT_APP_API_URL}/predict/route`)
             .then(res => {
                 const routes = res.data.optimized_routes || [];
                 setHighRiskCount(routes.length);
